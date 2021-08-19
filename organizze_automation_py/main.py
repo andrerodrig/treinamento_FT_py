@@ -1,6 +1,9 @@
 import unittest
 from selenium import webdriver
-
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import random
 
 class OrganizzeSiteTestCase(unittest.TestCase):
 
@@ -23,15 +26,19 @@ class OrganizzeSiteTestCase(unittest.TestCase):
         password_confirm_input = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div[2]/div[2]/input")
         terms_of_use = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div[3]/div/input")
         submit_button = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/button")
-        email_input.send_keys("treinamentoft@ft.com")
+        email_input.send_keys(f"treinamentoft{random.randrange(0,999,3)}@ft.com")
         password_input.send_keys("123456")
         password_confirm_input.send_keys("123456")
         terms_of_use.click()
         submit_button.click()
-        driver.implicitly_wait(5)
-        success_message = driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/h3")
-        self.assertEqual(success_message, "Parabéns! O Organizze já está preparado para você!")
-        driver.close()
+        try:
+            success_message = WebDriverWait(driver, 60).until(
+                EC.visibility_of_element_located((By.XPATH, "//h3[@class='signup__status-title mb-3']"))
+            )
+        finally:
+            # success_message = driver.find_element_by_xpath("//h3[@class='signup__status-title mb-3']").text
+            assert success_message.text == "Parabéns! O Organizze já está preparado para você!"
+            driver.close()
 
 
 
